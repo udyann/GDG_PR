@@ -1,7 +1,9 @@
-fastapi
-uvicorn
-torch
-transformers
-streamlit
-pillow
-diffusers
+fastapi==0.115.6
+Pillow==11.0.0
+pydantic==2.10.3
+python-dotenv==1.0.1
+Requests==2.32.3
+streamlit==1.40.2
+torch==2.5.1
+transformers==4.47.0
+uvicorn==0.32.1

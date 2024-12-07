@@ -1,32 +1,29 @@
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import torch
-#from diffusers import StableDiffusionPipeline
-from io import BytesIO
 import os
-import requests # added for localTest
+import requests
 
-
+default_labels = ["cat", "dog", "car", "airplane"]
 
 class ImageToTextModel():
     def __init__(self):
         clip_model = os.getenv("CLIP_MODEL_NAME", default="openai/clip-vit-base-patch16")
         self.model = CLIPModel.from_pretrained(clip_model)
         self.processor = CLIPProcessor.from_pretrained(clip_model)
-        self.labels = ["cat", "dog", "car", "airplane"]
     
-    def predict(self, imageURL):
+    def predict(self, imageURL, labels = default_labels):
         image = Image.open(requests.get(imageURL, stream=True).raw)
-        inputs = self.processor(text=self.labels, images=image, return_tensors="pt", padding=True)
+        inputs = self.processor(text=labels, images=image, return_tensors="pt", padding=True)
         with torch.no_grad():
             outputs = self.model(**inputs)
             logits_per_image = outputs.logits_per_image
             probs = logits_per_image.softmax(dim=1)
         
         #return most relevant label
-        maxLabel = self.labels[0]
+        maxLabel = labels[0]
         maxProb = probs[0][0].item()
-        for label, prob in zip(self.labels, probs[0]):
+        for label, prob in zip(labels, probs[0]):
             if prob > maxProb:
                 maxProb = prob
                 maxLabel = label

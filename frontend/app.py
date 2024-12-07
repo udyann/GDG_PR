@@ -1,6 +1,6 @@
 import streamlit as st
-import requests
 
 st.title("GDG Pull Request")
+st.text("welcome!")
 
 st.sidebar.success("Select function.")

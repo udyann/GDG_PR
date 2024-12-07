@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Response, File, UploadFile
+from fastapi import FastAPI, Response
+from dotenv import load_dotenv
 #from fastapi.responses import StreamingResponse
 import uvicorn
 from models import ImageToTextModel
@@ -8,9 +9,16 @@ from pydantic import BaseModel
 import os
 
 app = FastAPI()
+load_dotenv()
 
 class URLRequest(BaseModel):
     url: str
+    labels: list
+
+class PLRequest(BaseModel):
+    url: str
+    genre: str
+    labels: list
 
 class PromptRequest(BaseModel):
     prompt: str
@@ -40,8 +48,42 @@ async def image_to_text(request: URLRequest):
     model = ImageToTextModel()
 
     url = request.url
-    prediction = model.predict(imageURL=url)
+    if request.labels:
+        labels = request.labels
+        prediction = model.predict(imageURL=url, labels=labels)
+    else:
+        prediction = model.predict(imageURL=url)
     return f"it looks like {prediction}"
+
+@app.post("/playlist-recommendation")
+async def playlist_recommendation(request: PLRequest):
+    model = ImageToTextModel()
+
+    url = request.url
+    labels = request.labels
+    if len(request.genre) >= 2:
+        genre = request.genre
+    else:
+        genre = ""
+
+    moodPrediction = model.predict(imageURL=url, labels=labels)
+    PLQuery = moodPrediction + " " + genre + " playlist"
+    PLParams = {
+        "key": os.getenv("GOOGLE_API_KEY"),
+        "q": PLQuery,
+        "part": "snippet",
+        "maxResults": 4
+    }
+    PLParams = PLParams
+    response = requests.get("https://www.googleapis.com/youtube/v3/search", params=PLParams)
+    videos = []
+    print("before json")
+    response_json = response.json()
+    print("after json, before type")
+    print(response_json)
+    for each in response_json['items']:
+        print(each)
+    return response_json
 
 
 #local test
