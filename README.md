@@ -29,4 +29,4 @@ $ docker run -p 8000:8000 --env-file ./app/.env {image id}
 3. 새로운 터미널 열어서,    
 streamlit run ./frontend/app.py
 
-### .env 파일을 image에 구워버려서... 후딱 수정을 해야 합니다.
+.env 파일을 image에 구워버려서... 수정을 해야 합니다.
