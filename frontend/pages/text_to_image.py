@@ -7,11 +7,10 @@ st.sidebar.header("Text to Image")
 prompt = st.text_input("Enter a prompt for the image:")
 
 if st.button("generate image"):
-
-    response = requests.post("http://127.0.0.1:8000/text-to-image", json={"prompt": prompt})
-    if response.status_code == 200:
-        # Load image from the response
-        img = Image.open(BytesIO(response.content))
-        st.image(img, caption=f"Generated Image for: {prompt}")
-    else:
-        st.error("Failed to generate image!")
+    with st.spinner(text="generating image..."):
+        response = requests.post("http://127.0.0.1:8000/text-to-image", json={"prompt":prompt})
+        if response.status_code == 200:
+            # Load image from the response
+            st.image(response.content, caption=f"Generated Image for: {prompt}", use_container_width=True)
+        else:
+            st.error("Failed to generate image!")
