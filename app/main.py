@@ -1,12 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.responses import StreamingResponse
 import uvicorn
 from models import TextToImageModel, ImageToTextModel
-from pydantic import BaseModel # hmmm..... delete????
+import urllib.parse
+import requests
+from pydantic import BaseModel
 
 app = FastAPI()
 
-class PromptRequest(BaseModel): ### hmmm... delete????
+class URLRequest(BaseModel):
+    url: str
+
+class PromptRequest(BaseModel):
     prompt: str
 
 @app.get("/")
@@ -18,17 +23,21 @@ def health_check():
     return {"status": "Healthy ^-^"}
 
 @app.post("/text-to-image")
-#def text_to_image(prompt: str): #original
-def text_to_image(request:PromptRequest): ## hmmmmmmmmmmmmmmm......
-    print("wtf")
-    model = TextToImageModel()
-    prompt = request.prompt ## hmmmmmmmmmmm.........
-    image_stream = model.generateImage(prompt= prompt)
-    return StreamingResponse(image_stream, media_type="image/png")
+def text_to_image(request: PromptRequest):
+    prompt = request.prompt
+    encoded_prompt = urllib.parse.quote_plus(prompt, safe="")
+    url = "https://image.pollinations.ai/prompt/" + encoded_prompt
+    response = requests.get(url)
+    if response.status_code == 200:
+        return Response(content=response.content, media_type="image/jpeg")
+    else:
+        return {"error": "failed to generate image T^T"}
+
 
 @app.post("/image-to-text")
-async def image_to_text(url: str):
+async def image_to_text(request: URLRequest):
     model = ImageToTextModel()
+    url = request.url
     prediction = model.predict(imageURL=url)
     return {"message": f"it looks like {prediction}"}
 
