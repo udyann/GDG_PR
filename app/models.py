@@ -1,17 +1,18 @@
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import torch
-from diffusers import StableDiffusionPipeline
+#from diffusers import StableDiffusionPipeline
 from io import BytesIO
-
+import os
 import requests # added for localTest
 
 
 
 class ImageToTextModel():
     def __init__(self):
-        self.model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16")
-        self.processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
+        clip_model = os.getenv("CLIP_MODEL_NAME", default="openai/clip-vit-base-patch16")
+        self.model = CLIPModel.from_pretrained(clip_model)
+        self.processor = CLIPProcessor.from_pretrained(clip_model)
         self.labels = ["cat", "dog", "car", "airplane"]
     
     def predict(self, imageURL):
@@ -32,7 +33,8 @@ class ImageToTextModel():
             print(f"{label}: {prob.item() * 100:.2f}%")
         return maxLabel
         
-
+#not used anymore
+'''
 class TextToImageModel():
     def __init__(self):
         self.pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", torch_dtype=torch.float16)
@@ -54,3 +56,4 @@ class TextToImageModel():
             # Log or handle errors gracefully
             print(f"Error generating image: {e}")
             raise RuntimeError("Image generation failed.") from e
+'''

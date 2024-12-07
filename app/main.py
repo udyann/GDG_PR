@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Response
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, Response, File, UploadFile
+#from fastapi.responses import StreamingResponse
 import uvicorn
-from models import TextToImageModel, ImageToTextModel
+from models import ImageToTextModel
 import urllib.parse
 import requests
 from pydantic import BaseModel
+import os
 
 app = FastAPI()
 
@@ -37,11 +38,12 @@ def text_to_image(request: PromptRequest):
 @app.post("/image-to-text")
 async def image_to_text(request: URLRequest):
     model = ImageToTextModel()
+
     url = request.url
     prediction = model.predict(imageURL=url)
-    return {"message": f"it looks like {prediction}"}
+    return f"it looks like {prediction}"
 
 
 #local test
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host=os.getenv("FASTAPI_PORT", "127.0.0.1"), port=int(os.getenv("FASTAPI_PORT", 8000)))
