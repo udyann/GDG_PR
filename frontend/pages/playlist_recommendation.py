@@ -16,7 +16,6 @@ if st.button("label"):
     
     videos = []
     for each in res['items']:
-        print(each)
         snippet = each['snippet']
         if 'videoId' in each['id']:
             videos.append([each['id']['videoId'], snippet['title'], snippet['thumbnails']['medium']['url']])

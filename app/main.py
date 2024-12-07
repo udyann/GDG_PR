@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Response
 from dotenv import load_dotenv
-#from fastapi.responses import StreamingResponse
 import uvicorn
 from models import ImageToTextModel
 import urllib.parse
@@ -76,16 +75,8 @@ async def playlist_recommendation(request: PLRequest):
     }
     PLParams = PLParams
     response = requests.get("https://www.googleapis.com/youtube/v3/search", params=PLParams)
-    videos = []
-    print("before json")
     response_json = response.json()
-    print("after json, before type")
-    print(response_json)
-    for each in response_json['items']:
-        print(each)
     return response_json
 
-
-#local test
 if __name__ == "__main__":
     uvicorn.run(app, host=os.getenv("FASTAPI_PORT", "127.0.0.1"), port=int(os.getenv("FASTAPI_PORT", 8000)))
